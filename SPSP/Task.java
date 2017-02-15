@@ -9,10 +9,13 @@ import java.util.ArrayList;
 public class Task {
 
     private int duration;
+    private int id;
     private double effort;
     private ArrayList<Integer> requiredSkills;
     
-    public Task() {
+    public Task(int id) {
+        requiredSkills = new ArrayList<>();
+        this.id = id;
     }
 
     public int getDuration() {
@@ -27,6 +30,10 @@ public class Task {
         return requiredSkills;
     }
 
+    public void addRequiredSkill(int skill){
+        this.requiredSkills.add(skill);
+    }
+    
     public void setRequiredSkills(ArrayList<Integer> requiredSkills) {
         this.requiredSkills = requiredSkills;
     }
@@ -37,6 +44,14 @@ public class Task {
 
     public void setEffort(double effort) {
         this.effort = effort;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
     
     

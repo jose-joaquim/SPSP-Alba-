@@ -76,9 +76,6 @@ public class SPSP {
                 for(int j = 0; j < numberTasks; j++){
                     if(tableEX[i][j] > 0){
                         for(Integer k : tasks.get(j).getRequiredSkills()){
-                            /*if(Collections.binarySearch(employees.get(i).getSkills(), tasks.get(j).getRequiredSkills().get(k)) < 0){
-                                return false;
-                            }*/
                             if(Collections.binarySearch(employees.get(i).getSkills(), k) < 0){
                                 return false;
                             }
@@ -131,7 +128,11 @@ public class SPSP {
             return ret;
         }
         
-        
+        /**
+         * Calcula o quão boa é uma solução.
+         * @param molecule
+         * @return 
+         */
         @Override
         public double evaluate(Mol molecule) {
             double q = getSolutionValue();
