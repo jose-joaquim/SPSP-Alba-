@@ -1,19 +1,23 @@
-package Prob.SPSP;
+package jmetal.problems.SPSP_2;
 
+import jmetal.problems.SPSP.*;
 import java.util.ArrayList;
 
 /**
  *
  * @author joaqu
  */
-public class Task {
+public class Task_2 {
 
-    private int duration;
+    private int start;
+    private int end;
     private int id;
+    private int duration;
     private double effort;
     private ArrayList<Integer> requiredSkills;
+    private ArrayList<Integer> antecessores;
     
-    public Task(int id) {
+    public Task_2(int id) {
         requiredSkills = new ArrayList<>();
         this.id = id;
     }
@@ -52,6 +56,30 @@ public class Task {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
+    public void setEnd(int end) {
+        this.end = end;
+    }
+
+    public ArrayList<Integer> getAntecessores() {
+        return antecessores;
+    }
+
+    public void setAntecessores(ArrayList<Integer> antecessores) {
+        this.antecessores = antecessores;
     }
     
     

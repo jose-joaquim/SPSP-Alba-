@@ -1,5 +1,6 @@
-package Prob.SPSP;
+package jmetal.problems.SPSP_2;
 
+import jmetal.problems.SPSP.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -10,30 +11,36 @@ import java.util.Vector;
  *
  * @author jjaneto
  */
-public class Graph {
+public class Graph_2 {
 
-    private static final int DFS_WHITE = -1; // normal DFS
-    private static final int DFS_BLACK = 1;
-    private static int numComp;
+    public static final int DFS_WHITE = -1; // normal DFS
+    public static final int DFS_BLACK = 1;
+    public static int numComp;
   
-    static Vector<Vector<Integer> > adjList;
-    static Vector<Integer> dfs_num, topologicalSort;
+    public static Vector<Vector<Integer> > adjList;
+    public static Vector<Integer> dfs_num, topologicalSort;
+    public static ArrayList<Integer> pfEntrada;
     
-    public Graph(int qtdTasks) {
+    public Graph_2(int qtdTasks) {
         dfs_num = new Vector<>();
         adjList = new Vector<>();
         for(int i = 0; i < qtdTasks; i++){
             adjList.add(new Vector<>());
+            pfEntrada.add(0);
         }
     }
+
+    public static ArrayList<Integer> getPfEntrada() {
+        return pfEntrada;
+    }
     
-    private static void initDFS(int V) { // used in normal DFS
+    public static void initDFS(int V) { // used in normal DFS
         dfs_num = new Vector < Integer > ();
         dfs_num.addAll(Collections.nCopies(V, DFS_WHITE));
         numComp = 0;
     }
     
-    private static void initTopologicalSort(int V) {
+    public static void initTopologicalSort(int V) {
         initDFS(V);
         topologicalSort = new Vector < Integer > ();
         for (int i = 0; i < V; i++)
@@ -41,7 +48,7 @@ public class Graph {
                 topoVisit(i);
     }
     
-    private static void topoVisit(int u) {
+    public static void topoVisit(int u) {
         dfs_num.set(u, DFS_BLACK);
         Iterator it = adjList.get(u).iterator();
         while (it.hasNext()) {
@@ -58,8 +65,11 @@ public class Graph {
     }
     
     
+    
     public void addEdge(int u, int v){
         adjList.get(u).add(v);
+        int grau = pfEntrada.get(v);
+        pfEntrada.set(v, grau + 1);
     }
     
     /*public static void main(String args[]){
