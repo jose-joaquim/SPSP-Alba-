@@ -1,1 +1,3 @@
-Observar principalmente a classe *SPSP_2* que é a implementação parcial do modelo do Alba. Falta implementar uma fórmula que tem na seção 4.4 do artigo do Luna et al., 2014. Além disso, ainda estou verificando como irei implementar o método evaluate(), do jMetal, e ao final, irei adaptar o método de ordenação topológica do Grafo.
+Implementação do modelo do SPSP segundo Luna et al., 2014. A classe do operador de seleção é a *UFSExtremeTournament* :laughing:
+
+Quando for rodar em seu computador, observe que estou usando caminho absoluto na classe *Reader_2*, mais especificamente no método makeModel(). Alterar no momento da sua execução.
