@@ -88,12 +88,14 @@ public class Reader_2 {
             }
         }
         
+        for(Employee_2 e : arrEmployee) e.sortArraySkills();
         //return arrEmployee;
     }
     
     public void setArrayGraph(ArrayList<String> aux){
-        graph = new Graph_2(numberTasks);
-        
+        String token[] = instanceName.split("-");
+        int nVertex = Integer.parseInt(token[1]);
+        graph = new Graph_2(nVertex);
         //
         String pr[] = aux.get(aux.size() - 1).split("=");
         int arcs = Integer.parseInt(pr[1]);
@@ -135,6 +137,7 @@ public class Reader_2 {
             }
         }
         
+        for(Task_2 t : arrTask) t.sortRequiredSkills();
         //return arrTask;
     }
     
@@ -146,33 +149,42 @@ public class Reader_2 {
         
         while((line = rd.readLine()) != null){
             String token[] = line.split("=");
-            switch(line){
+            switch(token[0]){
                 case "points": 
                     points = Integer.valueOf(token[1]);
+                    //System.out.println("Setei points" + points);
                     break;
                 case "needed-resrc-weight": 
                     needRscWeight = Double.valueOf(token[1]);
+                    //System.out.println("Setei needRscWeight" + needRscWeight);
                     break;
                 case "instance": 
                     instanceName = token[1];
+                    //System.out.println("Setei instanceName" + instanceName);
                     break;
                 case "fitness-function": 
                     fitnessFunction = token[1];
+                    //System.out.println("Setei fitnessFunction" + fitnessFunction);
                     break;
                 case "time-weight": 
                     timeWeight = Double.valueOf(token[1]);
+                    //System.out.println("Setei timeWeight" + timeWeight);
                     break;
                 case "penalize-constant": 
                     penalizeConstant = Double.valueOf(token[1]);
+                    //System.out.println("Setei penalizeConstant" + penalizeConstant);
                     break;
                 case "cost-weight": 
                     costWeight = Double.valueOf(token[1]);
+                    //System.out.println("Setei costWeight" + costWeight);
                     break;
                 case "overload-weight": 
                     overloadWeight = Double.valueOf(token[1]);
+                    //System.out.println("Setei overloadWeight" + overloadWeight);
                     break;
                 case "undone-task-weight": 
                     undoneTaskWeight = Double.valueOf(token[1]);
+                    //System.out.println("Setei undoneTaskWeight" + undoneTaskWeight);
                     break;
                 default:
                     if(!line.contains("employee-limit")){
@@ -211,7 +223,5 @@ public class Reader_2 {
     public static ArrayList<Task_2> getArrTask() {
         return arrTask;
     }
-    
-    
     
 }

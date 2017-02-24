@@ -20,12 +20,16 @@ public class Graph_2 {
     public static Vector<Vector<Integer> > adjList;
     public static Vector<Integer> dfs_num, topologicalSort;
     public static ArrayList<Integer> pfEntrada;
+    public static ArrayList<ArrayList<Integer> > antecessor;
     
     public Graph_2(int qtdTasks) {
         dfs_num = new Vector<>();
         adjList = new Vector<>();
-        for(int i = 0; i < qtdTasks; i++){
+        pfEntrada = new ArrayList<>();
+        antecessor = new ArrayList<>();
+        for(int i = 0; i < qtdTasks + 1; i++){
             adjList.add(new Vector<>());
+            antecessor.add(new ArrayList<>());
             pfEntrada.add(0);
         }
     }
@@ -67,23 +71,21 @@ public class Graph_2 {
     
     
     public void addEdge(int u, int v){
-        adjList.get(u).add(v);
-        int grau = pfEntrada.get(v);
-        pfEntrada.set(v, grau + 1);
+        try{
+            adjList.get(u).add(v);
+            antecessor.get(v).add(u);
+            int grau = pfEntrada.get(v);
+            pfEntrada.set(v, grau + 1);
+        }catch(Exception ex){
+            ex.printStackTrace();
+            System.out.println("u eh " + u + " | v eh " + v);
+            throw new RuntimeException();
+        }
+        
     }
     
-    /*public static void main(String args[]){
-        Graph graph = new Graph(8);
-        graph.addEdge(0, 2);
-        graph.addEdge(0, 1);
-        graph.addEdge(1, 3);
-        graph.addEdge(2, 3);
-        graph.addEdge(3, 4);
-        graph.addEdge(2, 5);
-        graph.addEdge(7, 6);
-        graph.getTopologicalSort();
-        for(int i = topologicalSort.size() - 1; i >= 0; i--){
-            System.out.println(topologicalSort.get(i));
-        }
-    }*/
+
+    public static ArrayList<ArrayList<Integer>> getAntecessor() {
+        return antecessor;
+    }
 }

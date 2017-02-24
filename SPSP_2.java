@@ -1,5 +1,8 @@
 package jmetal.problems.SPSP_2;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import jmetal.core.Problem;
@@ -22,9 +25,11 @@ public class SPSP_2 extends Problem{
     public int undt; //numero de tarefas sem funcionario associado
     public double projectCost, projectDuration, projectOverwork;
     public double tableET[][];
+    public double maxOverwork = -1;
+    public final double epsilon = 0.00001;
     
     public ArrayList<Task_2> arrTasks;
-    public ArrayList<Employee_2> arrEmployees;
+    public ArrayList<Employee_2> arrEmployees;    
     
     /**
      * Os objetivos são: menor custo e menor tempo. As restriçōes são: cada tarefa tem que 
@@ -34,7 +39,7 @@ public class SPSP_2 extends Problem{
      * @param nEmployee
      * @param nTasks 
      */
-    public SPSP_2(int nEmployee, int nTasks) {
+    public SPSP_2(int nEmployee, int nTasks) throws IOException{
         this.nEmployee = nEmployee;
         this.nTasks = nTasks;
         this.tableET = new double[nEmployee][nTasks];
@@ -55,7 +60,20 @@ public class SPSP_2 extends Problem{
         
         solutionType_ = new ArrayRealSolutionType(this);
         tableValues();
-    }
+        
+        calculateDurationTasks();
+        calculateStartEndTasks();
+        calculateProjectDuration();
+        calculateProjectCost();
+        getEmployeeOverwork();
+        getProjectOverwork();
+        
+        if(projectOverwork > 0.0){
+            repairOperator();
+        }
+        
+     }
+    
     
     /**
      * Atribui aleatoriamente valores a tabela de dedicação.
@@ -79,9 +97,12 @@ public class SPSP_2 extends Problem{
                 i.setStart(0);
                 i.setEnd(i.getStart() + i.getDuration());
             }else{//se nao, pegue o ultimo pre requisito a acabar (o que tem maior taskEnd)
-                int start = 1000000000;
-                for(int j = 0; j < i.getAntecessores().size(); j++){
-                    start = Math.min(start, pfEntrada.get(i.getAntecessores().get(j)));
+                double start = -1;
+                ArrayList<ArrayList<Integer> > antList = Reader_2.graph.getAntecessor();
+                ArrayList<Integer> vet = antList.get(i.getId());
+                for(int j = 0; j < vet.size(); j++){
+                    int antecessor = vet.get(j);
+                    start = Math.max(start, arrTasks.get(antecessor).getEnd());
                 }
                 i.setStart(start);
                 i.setEnd(i.getStart() + i.getDuration());
@@ -93,13 +114,13 @@ public class SPSP_2 extends Problem{
      * Calcula a duração de cada tarefa.
      */
     public void calculateDurationTasks() {
-        for (int j = 0; j < nTasks; j++) {
+        for(Task_2 t : arrTasks){
             double sum = 0;
-            for (int i = 0; i < nEmployee; i++) {
-                sum += tableET[i][j];
+            for(Employee_2 e : arrEmployees){
+                sum += tableET[e.getId()][t.getId()];
             }
-            arrTasks.get(j).setDuration((int) (arrTasks.get(j).getEffort() / sum));
-        }
+            t.setDuration((t.getEffort()/sum));
+       }
     }
     
     /**
@@ -118,7 +139,7 @@ public class SPSP_2 extends Problem{
     /**
      * Calcula a duração do projeto, que é o mesmo que o final da ultima tarefa executada.
      */
-    public void calculateDuration(){
+    public void calculateProjectDuration(){
         for(Task_2 i : arrTasks){
             projectDuration = Math.max(projectDuration, i.getEnd());
         }
@@ -132,14 +153,16 @@ public class SPSP_2 extends Problem{
      */
     public boolean noTaskUnleft() {
         for (int j = 0; j < nTasks; j++) {
+            int none = 0;
             for (int i = 0; i < nEmployee; i++) {
                 //Se na tabela de dedicação tem alguma tarefa sem funcionário associado.
                 if (tableET[i][j] == 0.0) {
-                    undt++;
+                    none++;
                 }
             }
+            if(none == nEmployee) undt++;
         }
-        return undt > 0;
+        return (undt == 0);
     }
     
     /**
@@ -174,36 +197,59 @@ public class SPSP_2 extends Problem{
     public void getEmployeeOverwork(){
         for(Employee_2 ep : arrEmployees){
             ArrayList<Double> overwork = new ArrayList<>();
-            for(int instante = 1; instante <= projectDuration; instante++){
+            double overDedication = 0.0;
+            for(int instante = 0; instante <= (int) projectDuration; instante++){
                 double sum = 0.0;
                 for(Task_2 task : arrTasks){
                     if(task.getStart() <= instante && instante <= task.getEnd()){
+                        
                         sum += tableET[ep.getId()][task.getId()];
                     }
                 }
-                overwork.add(sum);
+                if(sum > ep.getMaxDedication()){
+                    overwork.add(sum - ep.getMaxDedication());
+                }else overwork.add(0.0);
+                overDedication += overwork.get(overwork.size() - 1);
+                maxOverwork = Math.max(maxOverwork, overwork.get(overwork.size() - 1));
             }
             ep.setWorkInstant(overwork);
+            ep.setOverDedication(overDedication);
         }
     }
     
     /**
      * Calcula o overwork do projeto baseado no overwork dos Funcionários.
      */
-    public void getProjectOverowork(){
+    public void getProjectOverwork(){
         for(Employee_2 ep : arrEmployees){
             projectOverwork += ep.getOverDedication();
         }
+        //System.out.println("projectOverwork eh " + projectOverwork);
+    }  
+    
+    public void repairOperator(){
+        for(int i = 0; i < nEmployee; i++){
+            for(int j = 0; j < nTasks; j++){
+                double value = epsilon + maxOverwork;
+                tableET[i][j] = tableET[i][j] / value;
+            }
+        }
+        projectDuration *= (epsilon + maxOverwork);
     }
 
     @Override
-    public void evaluate(Solution solution) throws JMException {
-    
-        
-        
-        for(int j = 0; j < numberOfObjectives_; j++){
-            solution.setObjective(j, j);
-        }
+    public void evaluate(Solution solution) throws JMException { //custo e duracao
+        solution.setObjective(0, projectCost);
+        solution.setObjective(1, projectDuration);
     }
     
+    @Override
+    public void evaluateConstraints(Solution solution) throws JMException{ //overwork, hasTakUndone, requiredSkill
+        //Usar o método setNumberOfViolatedConstraint()
+        int violatedConstraints = 0;
+        if(projectOverwork > 0.0) violatedConstraints++;
+        if(!noTaskUnleft()) violatedConstraints++;
+        if(!hasRequiredSkill()) violatedConstraints++;
+        solution.setNumberOfViolatedConstraint(violatedConstraints);
+    }
 }

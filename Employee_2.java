@@ -1,12 +1,13 @@
 package jmetal.problems.SPSP_2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
  * @author joaqu
  */
-public class Employee_2 implements Comparable<Employee_2>{
+public class Employee_2{
 
     private double salary;
     private double maxDedication;
@@ -59,11 +60,6 @@ public class Employee_2 implements Comparable<Employee_2>{
         this.skills.add(skill);
     }
 
-    @Override
-    public int compareTo(Employee_2 o) {
-        return o.getId() - this.id;
-    }
-
     public double getOverDedication() {
         return overDedication;
     }
@@ -80,6 +76,8 @@ public class Employee_2 implements Comparable<Employee_2>{
         this.workInstant = workInstant;
     }
     
-    
+    public void sortArraySkills(){
+        Collections.sort(skills);
+    }
     
 }
