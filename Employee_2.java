@@ -80,4 +80,8 @@ public class Employee_2{
         Collections.sort(skills);
     }
     
+    public void addOverDedication(double x){
+        this.overDedication += x;
+    }
+    
 }

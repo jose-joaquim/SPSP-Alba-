@@ -23,11 +23,11 @@ public class SPSP_2 extends Problem{
     public int nEmployee;
     public int nTasks;
     public int undt; //numero de tarefas sem funcionario associado
-    public double projectCost, projectDuration, projectOverwork;
+    public double projectOverwork;
     public double tableET[][];
     public double maxOverwork = -1;
     public final double epsilon = 0.00001;
-    
+    public double f[];
     public ArrayList<Task_2> arrTasks;
     public ArrayList<Employee_2> arrEmployees;    
     
@@ -43,7 +43,6 @@ public class SPSP_2 extends Problem{
         this.nEmployee = nEmployee;
         this.nTasks = nTasks;
         this.tableET = new double[nEmployee][nTasks];
-        this.projectDuration = -1;
         arrTasks = new ArrayList<>(Reader_2.arrTask);
         arrEmployees = new ArrayList<>(Reader_2.arrEmployee);
         
@@ -59,18 +58,6 @@ public class SPSP_2 extends Problem{
         }
         
         solutionType_ = new ArrayRealSolutionType(this);
-        tableValues();
-        
-        calculateDurationTasks();
-        calculateStartEndTasks();
-        calculateProjectDuration();
-        calculateProjectCost();
-        getEmployeeOverwork();
-        getProjectOverwork();
-        
-        if(projectOverwork > 0.0){
-            repairOperator();
-        }
         
      }
     
@@ -82,7 +69,9 @@ public class SPSP_2 extends Problem{
         for(int i = 0; i < nEmployee; i++){
             for(int j = 0; j < nTasks; j++){
                 tableET[i][j] = Math.random();
+                //System.out.println(tableET[i][j] + " ");
             }
+            //System.out.println("");
         }
     }
     
@@ -107,6 +96,8 @@ public class SPSP_2 extends Problem{
                 i.setStart(start);
                 i.setEnd(i.getStart() + i.getDuration());
             }
+            /*System.out.println("Tarefa " + i.getId() + " tem duracao de " + i.getDuration() + 
+                        " comeca em " + i.getStart() + " e termina em " + i.getEnd());*/
         }
     }
     
@@ -132,7 +123,7 @@ public class SPSP_2 extends Problem{
             for(Task_2 j : arrTasks){
                 sum += i.getSalary() * tableET[i.getId()][j.getId()] * j.getDuration();
             }
-            projectCost += sum;
+            f[0] += sum;
         }
     }
     
@@ -141,8 +132,9 @@ public class SPSP_2 extends Problem{
      */
     public void calculateProjectDuration(){
         for(Task_2 i : arrTasks){
-            projectDuration = Math.max(projectDuration, i.getEnd());
+            f[1] = Math.max(f[1], i.getEnd());
         }
+        //System.out.println("projectDuration eh " + projectDuration);
     }
     
     /**
@@ -195,25 +187,20 @@ public class SPSP_2 extends Problem{
      * O(QuantidadeFuncionarios * QuantidadeTarefas * ProjetoDuracao)
      */
     public void getEmployeeOverwork(){
-        for(Employee_2 ep : arrEmployees){
-            ArrayList<Double> overwork = new ArrayList<>();
-            double overDedication = 0.0;
-            for(int instante = 0; instante <= (int) projectDuration; instante++){
+        for(int stnt = 0; stnt <= (int) f[1]; stnt++){
+            for(Employee_2 ep : arrEmployees){
                 double sum = 0.0;
-                for(Task_2 task : arrTasks){
-                    if(task.getStart() <= instante && instante <= task.getEnd()){
-                        
-                        sum += tableET[ep.getId()][task.getId()];
+                for(Task_2 t : arrTasks){
+                    if(t.getStart() <= stnt && stnt <= t.getEnd()){
+                        sum += tableET[ep.getId()][t.getId()];
                     }
                 }
                 if(sum > ep.getMaxDedication()){
-                    overwork.add(sum - ep.getMaxDedication());
-                }else overwork.add(0.0);
-                overDedication += overwork.get(overwork.size() - 1);
-                maxOverwork = Math.max(maxOverwork, overwork.get(overwork.size() - 1));
+                    ep.addOverDedication(sum - ep.getMaxDedication());
+                }
+                //System.out.println("(INSTANTE " + stnt + ") Funcionario " + ep.getId() + " sum = " + sum);
+                maxOverwork = Math.max(maxOverwork, sum);
             }
-            ep.setWorkInstant(overwork);
-            ep.setOverDedication(overDedication);
         }
     }
     
@@ -221,6 +208,7 @@ public class SPSP_2 extends Problem{
      * Calcula o overwork do projeto baseado no overwork dos Funcionários.
      */
     public void getProjectOverwork(){
+        projectOverwork = 0.0;
         for(Employee_2 ep : arrEmployees){
             projectOverwork += ep.getOverDedication();
         }
@@ -234,13 +222,30 @@ public class SPSP_2 extends Problem{
                 tableET[i][j] = tableET[i][j] / value;
             }
         }
-        projectDuration *= (epsilon + maxOverwork);
+        f[1] *= (epsilon + maxOverwork);
+        for(int i = 0; i < nEmployee; i++) arrEmployees.get(i).setOverDedication(0.0);
+        projectOverwork = 0.0;
+        getEmployeeOverwork();
+        getProjectOverwork();
     }
 
     @Override
     public void evaluate(Solution solution) throws JMException { //custo e duracao
-        solution.setObjective(0, projectCost);
-        solution.setObjective(1, projectDuration);
+        f = new double[numberOfObjectives_];
+        
+        tableValues();
+        calculateDurationTasks();
+        calculateStartEndTasks();
+        calculateProjectDuration();
+        calculateProjectCost();
+        getEmployeeOverwork();
+        getProjectOverwork();
+        
+        if(projectOverwork > 0.0){
+            repairOperator();
+        }
+        solution.setObjective(0, f[0]);
+        solution.setObjective(1, f[1]);
     }
     
     @Override
@@ -251,5 +256,19 @@ public class SPSP_2 extends Problem{
         if(!noTaskUnleft()) violatedConstraints++;
         if(!hasRequiredSkill()) violatedConstraints++;
         solution.setNumberOfViolatedConstraint(violatedConstraints);
+        solution.setOverallConstraintViolation(violatedConstraints);
     }
+    
+    public void print(){
+        System.out.println("projectCost" + f[0]);
+        System.out.println("projectDuration" + f[1]);
+        System.out.println("projectOverwork" + projectOverwork);
+        System.out.println("noTaskUnleft" + !noTaskUnleft());
+        System.out.println("hasRequiredSkill" + !hasRequiredSkill());
+    }
+    
+    /*public static void main(String args[]) throws IOException{
+        Reader_2 rd = new Reader_2(new File("/Users/jjaneto/Google Drive/Pesquisa Leila/INSTANCIAS/scalableSPS1.conf"));
+        new SPSP_2(rd.arrEmployee.size(), rd.arrTask.size());
+    }*/
 }
