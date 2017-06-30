@@ -1,4 +1,4 @@
-package jmetal.problems.SPSP_2;
+package jmetal.problems.SPSP;
 
 import jmetal.problems.SPSP.*;
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import java.util.Collections;
  *
  * @author joaqu
  */
-public class Task_2 {
+public class Task implements Comparable<Task>{
 
     private double start;
     private double end;
@@ -18,9 +18,10 @@ public class Task_2 {
     private ArrayList<Integer> requiredSkills;
     //private ArrayList<Integer> antecessores;
     
-    public Task_2(int id) {
+    public Task(int id) {
         requiredSkills = new ArrayList<>();
         this.id = id;
+        this.end = -1;
     }
 
     public double getDuration() {
@@ -77,6 +78,11 @@ public class Task_2 {
 
     public void sortRequiredSkills(){
         Collections.sort(requiredSkills);
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        return getId() - o.getId();
     }
     
 }

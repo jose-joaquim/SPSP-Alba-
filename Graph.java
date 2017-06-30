@@ -1,4 +1,4 @@
-package jmetal.problems.SPSP_2;
+package jmetal.problems.SPSP;
 
 import jmetal.problems.SPSP.*;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.Vector;
  *
  * @author jjaneto
  */
-public class Graph_2 {
+public class Graph {
 
     public static final int DFS_WHITE = -1; // normal DFS
     public static final int DFS_BLACK = 1;
@@ -22,7 +22,7 @@ public class Graph_2 {
     public static ArrayList<Integer> pfEntrada;
     public static ArrayList<ArrayList<Integer> > antecessor;
     
-    public Graph_2(int qtdTasks) {
+    public Graph(int qtdTasks) {
         dfs_num = new Vector<>();
         adjList = new Vector<>();
         pfEntrada = new ArrayList<>();

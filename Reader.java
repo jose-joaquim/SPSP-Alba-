@@ -1,4 +1,4 @@
-package jmetal.problems.SPSP_2;
+package jmetal.problems.SPSP;
 
 import jmetal.problems.SPSP.*;
 import java.io.BufferedReader;
@@ -16,15 +16,15 @@ import java.util.logging.Logger;
  *
  * @author jjaneto
  */
-public class Reader_2 {
+public class Reader {
 
     protected ArrayList<String> array;
     protected int numberTasks;
     protected String instanceName, fitnessFunction;
     //
-    public static ArrayList<Employee_2> arrEmployee;
-    public static Graph_2 graph;
-    public static ArrayList<Task_2> arrTask;
+    public static ArrayList<Employee> arrEmployee;
+    public static Graph graph;
+    public static ArrayList<Task> arrTask;
     //
     public static double overloadWeight;
     public static double undoneTaskWeight;
@@ -34,7 +34,7 @@ public class Reader_2 {
     public static double needRscWeight; //acho que é needed resource (?)
     public static int points; //tentando descobrir o que significa
     
-    public Reader_2(File file) {
+    public Reader(File file) {
         array = new ArrayList<>();
         try {
             readScalabe(file);
@@ -70,7 +70,7 @@ public class Reader_2 {
         //
         String token[] = aux.get(aux.size() - 1).split("=");
         int size = Integer.parseInt(token[1]);
-        for(int i = 0; i < size; i++) arrEmployee.add(new Employee_2(i));
+        for(int i = 0; i < size; i++) arrEmployee.add(new Employee(i, 0));
         aux.remove(aux.size() - 1);
         //
         
@@ -88,14 +88,22 @@ public class Reader_2 {
             }
         }
         
-        for(Employee_2 e : arrEmployee) e.sortArraySkills();
+        for(Employee e : arrEmployee) e.sortArraySkills();
+        
+//        for(Employee e : arrEmployee){
+//                System.out.println("Employee: " + e.getId());
+//                System.out.println("Salary: " + e.getSalary());
+//                System.out.print("Skills:");
+//                for(Integer x : e.getSkills()) System.out.print(" " + x);
+//                System.out.println("");
+//            }
         //return arrEmployee;
     }
     
     public void setArrayGraph(ArrayList<String> aux){
         String token[] = instanceName.split("-");
         int nVertex = Integer.parseInt(token[1]);
-        graph = new Graph_2(nVertex);
+        graph = new Graph(nVertex);
         //
         String pr[] = aux.get(aux.size() - 1).split("=");
         int arcs = Integer.parseInt(pr[1]);
@@ -107,6 +115,7 @@ public class Reader_2 {
             String w[] = sd[1].split(" ");
             int u = Integer.parseInt(w[0]), v = Integer.parseInt(w[1]);
             graph.addEdge(u, v);
+//            System.out.println("Adicionei aresta " + u + " " + v);
         }
         
         //return graph;
@@ -118,7 +127,7 @@ public class Reader_2 {
         //
         String token[] = aux.get(aux.size() - 1).split("=");
         numberTasks = Integer.parseInt(token[1]);
-        for(int i = 0; i < numberTasks; i++) arrTask.add(new Task_2(i));
+        for(int i = 0; i < numberTasks; i++) arrTask.add(new Task(i));
         aux.remove(aux.size() - 1);
         //
         
@@ -137,7 +146,15 @@ public class Reader_2 {
             }
         }
         
-        for(Task_2 t : arrTask) t.sortRequiredSkills();
+        for(Task t : arrTask) t.sortRequiredSkills();
+        
+//        for(Task t : arrTask){
+//                System.out.println("Task: " + t.getId());
+//                System.out.println("Cost: " + t.getEffort());
+//                System.out.print("Skills:");
+//                for(Integer x : t.getRequiredSkills()) System.out.print(" " + x);
+//                System.out.println("");
+//            }
         //return arrTask;
     }
     
@@ -212,15 +229,15 @@ public class Reader_2 {
     }
 
 
-    public static ArrayList<Employee_2> getArrEmployee() {
+    public static ArrayList<Employee> getArrEmployee() {
         return arrEmployee;
     }
 
-    public static Graph_2 getGraph() {
+    public static Graph getGraph() {
         return graph;
     }
 
-    public static ArrayList<Task_2> getArrTask() {
+    public static ArrayList<Task> getArrTask() {
         return arrTask;
     }
     

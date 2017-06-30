@@ -1,4 +1,4 @@
-package jmetal.problems.SPSP_2;
+package jmetal.problems.SPSP;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,7 +7,7 @@ import java.util.Collections;
  *
  * @author joaqu
  */
-public class Employee_2{
+public class Employee{
 
     private double salary;
     private double maxDedication;
@@ -16,10 +16,11 @@ public class Employee_2{
     private ArrayList<Integer> skills;
     private ArrayList<Double> workInstant;
     
-    public Employee_2(int id) {
+    public Employee(int id, int salary) {
         skills = new ArrayList<>();
         workInstant = new ArrayList<>();
         this.id = id;
+        this.salary = salary;
         this.maxDedication = 1.0;
         this.overDedication = 0.0;
     }
@@ -83,5 +84,6 @@ public class Employee_2{
     public void addOverDedication(double x){
         this.overDedication += x;
     }
+    
     
 }
